@@ -1,5 +1,12 @@
 node_modules/
 dist/
+*.zip
+
+# dev-only, kept locally but excluded from the public repo
+recon/
+mockups/
+docs/superpowers/
+
 recon/node_modules/
 recon/chrome-profile/
 recon/capture.jsonl
