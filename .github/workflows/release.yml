@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      # When a release is cut, build the extension and attach the zip to it.
+      - uses: actions/checkout@v4
+        if: ${{ steps.release.outputs.release_created }}
+      - uses: actions/setup-node@v4
+        if: ${{ steps.release.outputs.release_created }}
+        with:
+          node-version: 20
+          cache: npm
+      - name: Build and package
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          npm ci
+          npm run build
+          zip -r dehu-unificado.zip manifest.json dist icons LICENSE README.md
+      - name: Attach zip to release
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ steps.release.outputs.tag_name }}" dehu-unificado.zip --clobber
