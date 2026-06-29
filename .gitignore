@@ -1,4 +1,5 @@
 node_modules/
+dist/
 recon/node_modules/
 recon/chrome-profile/
 recon/capture.jsonl

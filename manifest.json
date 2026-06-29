@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "DEHú Unificado",
+  "version": "0.1.0",
+  "description": "Notificaciones y Comunicaciones de DEHú en una sola lista buscable.",
+  "permissions": ["storage", "unlimitedStorage", "scripting", "activeTab"],
+  "host_permissions": ["https://dehu.redsara.es/*"],
+  "background": { "service_worker": "dist/service-worker.js" },
+  "action": { "default_title": "Abrir DEHú Unificado" },
+  "content_scripts": [
+    { "matches": ["https://dehu.redsara.es/*"], "js": ["dist/content.js"], "run_at": "document_idle" }
+  ],
+  "web_accessible_resources": [
+    { "resources": ["dist/token-hook.js"], "matches": ["https://dehu.redsara.es/*"] }
+  ],
+  "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" }
+}
