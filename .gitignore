@@ -5,3 +5,5 @@ recon/capture.jsonl
 recon/install.log
 *.log
 .DS_Store
+mockups/_*.png
+recon/_*.png

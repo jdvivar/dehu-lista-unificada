@@ -63,27 +63,33 @@ network traffic of a logged-in session.
 
 ## Architecture
 
-Four components:
+The UI is **injected as an overlay on the DEHú pages themselves** (match
+`https://dehu.redsara.es/*`), not a separate extension tab. The content script that already
+holds the session both runs the scan and renders the UI in-place.
 
-1. **Content script** (only on `dehu.redsara.es`). Injects a **page-context (MAIN world)
+Components:
+
+1. **Content script** (on `dehu.redsara.es/*`). (a) Injects a **page-context (MAIN world)
    hook** that wraps `fetch`/`XHR` to capture the live `Authorization: Bearer` header (and
-   observe token refreshes). Performs the authenticated API calls (same-origin → cookies
-   auto-attach, no CORS) using the captured token, on command from the app page.
-2. **App page** — a full extension page opened as its own tab
-   (`chrome-extension://…/app.html`). The brain + UI: owns the chunked-search
-   orchestration, results, the unified list, search/filter, export, IndexedDB. Survives as
-   long as the tab is open (no MV3 service-worker timeout).
-3. **Service worker (background)** — thin wiring only: opens the app page on toolbar click,
-   relays messages. No long-running work by design.
-4. **Storage** — IndexedDB in the app page, keyed by item `id`, caching results so
-   re-opening is instant and re-sync only re-fetches recent windows.
+   observe token refreshes). (b) Injects a **launcher** (floating button, or a tab in DEHú's
+   own nav) and the **overlay UI**, rendered inside a **Shadow DOM** so DEHú's Angular CSS
+   and ours stay mutually isolated. (c) Performs the authenticated API calls (same-origin →
+   cookies auto-attach, no CORS) using the captured token. (d) Owns the chunked-search
+   orchestration, the unified list, search/filter, export. The content script lives with the
+   page, so the long scan is not subject to the MV3 service-worker timeout as long as the
+   DEHú tab is open.
+2. **Service worker (background)** — thin wiring only: relays the toolbar-icon click to the
+   content script to open the overlay. No long-running work by design.
+3. **Storage** — `chrome.storage.local` (extension-owned, invisible to the page and to other
+   extensions, survives sessions), keyed by item `id`. See Persistence below.
 
-**Data flow (on-demand):** user logs into DEHú normally → opens the app tab → clicks
-**Sync** → app page drives the content script through 30-day(ish) windows for both sources
-→ results stream back, normalized/merged/deduped/persisted → unified searchable list renders.
+**Data flow (on-demand):** user logs into DEHú normally → clicks the injected launcher →
+overlay opens → clicks **Sync** → content script walks 30-day(ish) windows for both sources
+→ results normalized/merged/deduped/persisted → unified searchable list renders in the
+overlay.
 
-**Fallback:** if same-origin execution from the content script is blocked, fetch from the
-app page using `host_permissions` + the captured token (same design, different executor).
+**Fallback:** if same-origin execution is blocked, fetch from the service worker using
+`host_permissions` + the captured token (same design, different executor).
 
 ## The chunked-search engine
 
@@ -109,6 +115,32 @@ gaps, no overlaps.
 **401** mid-scan, re-read the freshly-refreshed token from the page hook and retry; on
 **429/5xx**, exponential backoff; if a window is rejected for size, shrink `N` and retry.
 Progress UI: "window X of N · M items so far," cancellable.
+
+## Persistence & local privacy
+
+Goal: don't re-download everything each session, while respecting that this is sensitive
+personal data that may live on a shared computer.
+
+- **Where:** `chrome.storage.local`, namespaced per user (by a hash of the DEHú identity),
+  keyed by item `id`. Metadata is small (~0.5 KB/item); request `unlimitedStorage`.
+- **Incremental sync:** persist the last successful sync's end date; a re-sync only fetches
+  windows newer than that, never the full range again. Dedupe by `id` on merge.
+- **Encryption at rest (AES-GCM, WebCrypto):** the key is **derived at runtime from the
+  user's DEHú identity fetched live from the session** (PBKDF2 + stored random salt) and
+  **never written to disk**. So the profile holds only ciphertext.
+  - **Honest limitation:** the DEHú identifier is effectively the user's **NIF**, which is
+    not a true secret. This encryption defeats casual inspection of the profile, and the
+    data is only decryptable while logged in — but a targeted attacker who knows the user's
+    NIF could decrypt it. No key derivable from non-secret data can close that gap.
+  - **Therefore the real privacy control is the user's, not the crypto** (below).
+  - No passphrase mode in v1 (rejected: regular users don't understand it; adds friction).
+- **User controls — tucked behind a ⚙ settings menu** in the overlay's top bar (kept out of
+  the main view to save space):
+  - ☑ **"Guardar datos en este equipo (cifrados)"** — default ON. OFF = memory-only for the
+    session, discarded on close.
+  - ☐ **"Borrar al cerrar"** — optional auto-wipe on tab/browser close, for shared machines.
+  - 🗑 **"Borrar datos guardados"** — wipes this user's cache immediately.
+  - A compact "última sinc." note stays visible in the list header.
 
 ## Unified-list UI
 
@@ -137,6 +169,8 @@ Single full-tab page:
   normalize/merge/dedupe — using the **captured response shapes as fixtures**.
 - **Integration:** mock executor replaying recorded fixtures — pagination stop conditions,
   token refresh on 401, backoff.
+- **Persistence:** AES-GCM encrypt→decrypt round-trip; incremental sync only fetches windows
+  after the stored last-sync date; "Borrar datos" / memory-only mode leave no residue.
 - **Manual:** load-unpacked against the live site. No automated E2E (auth + legal effects).
 
 ## Out of scope (for now)
