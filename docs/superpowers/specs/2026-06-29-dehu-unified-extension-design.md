@@ -71,9 +71,13 @@ Components:
 
 1. **Content script** (on `dehu.redsara.es/*`). (a) Injects a **page-context (MAIN world)
    hook** that wraps `fetch`/`XHR` to capture the live `Authorization: Bearer` header (and
-   observe token refreshes). (b) Injects a **launcher** (floating button, or a tab in DEHú's
-   own nav) and the **overlay UI**, rendered inside a **Shadow DOM** so DEHú's Angular CSS
-   and ours stay mutually isolated. (c) Performs the authenticated API calls (same-origin →
+   observe token refreshes). (b) Injects the **overlay UI**, rendered
+   inside a **Shadow DOM** so DEHú's Angular CSS and ours stay mutually isolated. The overlay
+   opens via **two entry points**: the **extension toolbar icon** (canonical; the service
+   worker relays the click — if the user isn't on DEHú it opens DEHú in a tab first) and an
+   **injected on-page floating button** (in-context discoverability). The ✕ or a backdrop
+   click closes it. We deliberately do **not** inject into DEHú's own nav bar (fragile
+   against their DOM changes). (c) Performs the authenticated API calls (same-origin →
    cookies auto-attach, no CORS) using the captured token. (d) Owns the chunked-search
    orchestration, the unified list, search/filter, export. The content script lives with the
    page, so the long scan is not subject to the MV3 service-worker timeout as long as the
