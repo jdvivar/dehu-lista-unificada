@@ -8,7 +8,7 @@
   "background": { "service_worker": "dist/service-worker.js" },
   "action": { "default_title": "Abrir DEHú Unificado" },
   "content_scripts": [
-    { "matches": ["https://dehu.redsara.es/*"], "js": ["dist/content.js"], "run_at": "document_idle" }
+    { "matches": ["https://dehu.redsara.es/*"], "js": ["dist/content.js"], "run_at": "document_start" }
   ],
   "web_accessible_resources": [
     { "resources": ["dist/token-hook.js"], "matches": ["https://dehu.redsara.es/*"] }

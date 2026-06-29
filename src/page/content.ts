@@ -35,19 +35,25 @@ const yyyymmdd = (d: Date) => {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 };
 
-(async function main() {
-  injectHook();
-  const getToken = installTokenBridge();
-  const overlay = mountOverlay();
+// --- runs at document_start: install the token hook + bridge before the SPA boots ---
+injectHook();
+let overlay: ReturnType<typeof mountOverlay> | null = null;
+let loggedIn = false;
+const getToken = installTokenBridge(() => { loggedIn = true; overlay?.revealLauncher(); });
+
+// --- the UI + wiring, mounted once the DOM is ready ---
+function start() {
+  const ov = mountOverlay();
+  overlay = ov;
+  if (loggedIn) ov.revealLauncher(); // token may have arrived before mount
+  const els = ov.els;
   const executor = makeExecutor(getToken);
-  const els = overlay.els;
 
   let all: UnifiedItem[] = [];
   let store: Awaited<ReturnType<typeof makeStore>> | null = null;
   let storageOn = true;
   let abort: AbortController | null = null;
 
-  // default date range: last 12 months
   const today = new Date();
   const yearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
   els.to.value = yyyymmdd(today);
@@ -55,36 +61,34 @@ const yyyymmdd = (d: Date) => {
 
   const sourcesSelected = (): Source[] => {
     const out: Source[] = [];
-    overlay.root.querySelectorAll<HTMLElement>(".toggle.on").forEach(t => {
+    ov.root.querySelectorAll<HTMLElement>(".toggle.on").forEach(t => {
       const s = t.dataset.source as Source | undefined;
       if (s) out.push(s);
     });
     return out.length ? out : ["notificacion", "comunicacion"];
   };
   const activeState = () =>
-    (overlay.root.querySelector(".chip.on") as HTMLElement | null)?.dataset.state ?? "all";
+    (ov.root.querySelector(".chip.on") as HTMLElement | null)?.dataset.state ?? "all";
 
   const apply = () => {
     const shown = filterItems(all, { query: els.search.value, sources: sourcesSelected(), state: activeState() });
     renderRows(els.rows, shown);
     els.count.textContent = all.length
       ? `Mostrando ${shown.length} de ${all.length} elementos`
-      : "Sin datos todavía. Pulsa Sincronizar.";
+      : "Sin datos todavía. Inicia sesión y pulsa Sincronizar.";
   };
 
-  // --- interactivity ---
   els.search.addEventListener("input", apply);
-  overlay.root.querySelectorAll<HTMLElement>(".toggle").forEach(t =>
+  ov.root.querySelectorAll<HTMLElement>(".toggle").forEach(t =>
     t.addEventListener("click", () => { t.classList.toggle("on"); apply(); }));
-  overlay.root.querySelectorAll<HTMLElement>(".chip").forEach(c =>
+  ov.root.querySelectorAll<HTMLElement>(".chip").forEach(c =>
     c.addEventListener("click", () => {
-      overlay.root.querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
+      ov.root.querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
       c.classList.add("on"); apply();
     }));
-  overlay.root.querySelector(".export")?.addEventListener("click", () =>
+  ov.root.querySelector(".export")?.addEventListener("click", () =>
     downloadCSV(filterItems(all, { query: els.search.value, sources: sourcesSelected(), state: activeState() })));
 
-  // --- sync ---
   els.cancel.addEventListener("click", () => abort?.abort());
   els.sync.addEventListener("click", async () => {
     abort = new AbortController();
@@ -113,29 +117,32 @@ const yyyymmdd = (d: Date) => {
     }
   });
 
-  // --- settings menu ---
-  (overlay.root.querySelector("#opt-store") as HTMLInputElement | null)?.addEventListener("change", async (e) => {
+  (ov.root.querySelector("#opt-store") as HTMLInputElement | null)?.addEventListener("change", async (e) => {
     storageOn = (e.target as HTMLInputElement).checked;
     if (!storageOn && store) await store.clear();
   });
-  overlay.root.querySelector("#clear-data")?.addEventListener("click", async () => {
+  ov.root.querySelector("#clear-data")?.addEventListener("click", async () => {
     if (store) await store.clear();
     all = []; apply();
     els.lastsync.textContent = "";
   });
-  const clearClose = overlay.root.querySelector("#opt-clear-close") as HTMLInputElement | null;
+  const clearClose = ov.root.querySelector("#opt-clear-close") as HTMLInputElement | null;
   window.addEventListener("beforeunload", () => { if (clearClose?.checked && store) void store.clear(); });
 
-  // --- load cached data ---
-  const identity = await fetchIdentity(getToken);
-  if (identity) {
-    store = await makeStore(identity, chrome.storage.local);
-    const cached = await store.load();
-    all = cached.items;
-    if (cached.lastSync) els.lastsync.textContent = `· Última sincronización: ${cached.lastSync} · solo se descargan novedades`;
-  }
-  apply();
+  // load cached data (only meaningful once logged in / identity known)
+  void (async () => {
+    const identity = await fetchIdentity(getToken);
+    if (identity) {
+      store = await makeStore(identity, chrome.storage.local);
+      const cached = await store.load();
+      all = cached.items;
+      if (cached.lastSync) els.lastsync.textContent = `· Última sincronización: ${cached.lastSync} · solo se descargan novedades`;
+    }
+    apply();
+  })();
 
-  // --- toolbar-icon relay ---
-  chrome.runtime.onMessage.addListener(msg => { if (msg?.type === "toggle-overlay") overlay.toggle(); });
-})();
+  chrome.runtime.onMessage.addListener(msg => { if (msg?.type === "toggle-overlay") ov.toggle(); });
+}
+
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+else start();

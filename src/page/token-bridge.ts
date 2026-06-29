@@ -5,11 +5,13 @@ export function parseTokenMessage(ev: { data: any; origin: string }, expectedOri
   return null;
 }
 
-export function installTokenBridge(): () => string | null {
+// Captures the live Bearer token relayed by the MAIN-world hook. `onToken` fires
+// whenever a token is seen — used as the "logged in" signal to reveal the UI.
+export function installTokenBridge(onToken?: (token: string) => void): () => string | null {
   let token: string | null = null;
   window.addEventListener("message", ev => {
     const t = parseTokenMessage(ev, location.origin);
-    if (t) token = t;
+    if (t) { token = t; onToken?.(t); }
   });
   return () => token;
 }
