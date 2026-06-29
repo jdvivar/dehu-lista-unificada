@@ -6,10 +6,7 @@
       "package-name": "dehu-unificado",
       "changelog-path": "CHANGELOG.md",
       "prerelease": true,
-      "prerelease-type": "beta",
-      "extra-files": [
-        { "type": "json", "path": "manifest.json", "jsonpath": "$.version" }
-      ]
+      "prerelease-type": "beta"
     }
   }
 }

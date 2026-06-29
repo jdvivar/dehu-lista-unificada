@@ -26,6 +26,14 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      - name: Set manifest version (numeric) + version_name (full beta)
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          NUM: "${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"
+          FULL: ${{ steps.release.outputs.version }}
+        run: |
+          node -e "const f='manifest.json';const m=require('./'+f);m.version=process.env.NUM;m.version_name=process.env.FULL;require('fs').writeFileSync(f,JSON.stringify(m,null,2)+'\n')"
+          echo "manifest version=$NUM version_name=$FULL"
       - name: Build and package
         if: ${{ steps.release.outputs.release_created }}
         run: |
