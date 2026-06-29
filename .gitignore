@@ -1,0 +1,7 @@
+node_modules/
+recon/node_modules/
+recon/chrome-profile/
+recon/capture.jsonl
+recon/install.log
+*.log
+.DS_Store
