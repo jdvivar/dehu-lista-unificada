@@ -86,5 +86,6 @@ tbody tr:hover .open { opacity: 1; }
 
 .fab { position: fixed; right: 26px; bottom: 26px; z-index: 2147483639; background: #6d28d9; color: #fff; border: 0;
   border-radius: 99px; padding: 13px 18px; font-weight: 700; font-size: 14px; box-shadow: 0 10px 26px rgba(109,40,217,.45);
-  cursor: pointer; display: flex; align-items: center; gap: 9px; }
+  cursor: grab; display: flex; align-items: center; gap: 9px; touch-action: none; user-select: none; }
+.fab:active { cursor: grabbing; }
 `;

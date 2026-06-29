@@ -1,6 +1,45 @@
 import { CSS } from "./overlay.css";
 import { overlayHTML } from "./template";
 
+const FAB_POS_KEY = "dehu-uni:fab-pos";
+
+// Make the launcher draggable; a press that doesn't move fires onClick (opens
+// the overlay), a press that moves repositions it and remembers the spot.
+function makeDraggable(fab: HTMLElement, onClick: () => void) {
+  try {
+    const saved = localStorage.getItem(FAB_POS_KEY);
+    if (saved) {
+      const { left, top } = JSON.parse(saved);
+      fab.style.left = left; fab.style.top = top; fab.style.right = "auto"; fab.style.bottom = "auto";
+    }
+  } catch { /* ignore */ }
+
+  let dragging = false, moved = false, startX = 0, startY = 0, origX = 0, origY = 0;
+
+  fab.addEventListener("pointerdown", (e) => {
+    dragging = true; moved = false;
+    const r = fab.getBoundingClientRect();
+    startX = e.clientX; startY = e.clientY; origX = r.left; origY = r.top;
+    fab.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  fab.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+    const left = Math.max(4, Math.min(window.innerWidth - fab.offsetWidth - 4, origX + dx));
+    const top = Math.max(4, Math.min(window.innerHeight - fab.offsetHeight - 4, origY + dy));
+    fab.style.left = `${left}px`; fab.style.top = `${top}px`; fab.style.right = "auto"; fab.style.bottom = "auto";
+  });
+  fab.addEventListener("pointerup", (e) => {
+    if (!dragging) return;
+    dragging = false;
+    fab.releasePointerCapture(e.pointerId);
+    if (moved) { try { localStorage.setItem(FAB_POS_KEY, JSON.stringify({ left: fab.style.left, top: fab.style.top })); } catch { /* ignore */ } }
+    else onClick();
+  });
+}
+
 export interface OverlayHandle {
   open(): void; close(): void; toggle(): void;
   root: ShadowRoot;
@@ -49,7 +88,7 @@ export function mountOverlay(): OverlayHandle {
     lastsync: $("lastsync"), count: $("count"),
   };
 
-  $("fab").addEventListener("click", () => setOpen(true));
+  makeDraggable($("fab"), () => setOpen(true));
   q(".overlay .x").addEventListener("click", () => setOpen(false));
   q(".backdrop").addEventListener("click", () => setOpen(false));
   els.gear.addEventListener("click", (e) => { e.stopPropagation(); els.menu.classList.toggle("show"); });
