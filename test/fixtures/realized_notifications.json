@@ -1,0 +1,5 @@
+{ "count": 1, "total": 1, "limit": 10, "page": 1, "items": [
+  { "identifier": "ABC12345", "emitterEntity": "Agencia Tributaria", "concept": "Requerimiento",
+    "state": "Comparecida", "nifTitular": "00000000X", "availabilityDate": "2026-06-13T00:39:58+02:00",
+    "expirationDate": "2026-06-23T23:59:59+02:00", "finalDate": "2026-06-13T00:41:14+02:00",
+    "bondType": "TITULAR", "hasAnnexes": false, "notificationPriority": "NORMAL", "assuranceLevel": "1" } ] }

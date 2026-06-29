@@ -1,0 +1,4 @@
+{ "count": 1, "total": 1, "limit": 10, "page": 1, "items": [
+  { "identifier": "COM99887", "emitterEntity": "Seguridad Social", "concept": "Variación de datos",
+    "state": "Leida", "titularNif": "00000000X", "availabilityDate": "2026-06-02T10:00:00+02:00",
+    "bondType": "TITULAR", "hasAnnexes": true } ] }
