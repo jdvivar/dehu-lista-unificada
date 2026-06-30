@@ -41,7 +41,7 @@ function makeDraggable(fab: HTMLElement, onClick: () => void) {
 }
 
 export interface OverlayHandle {
-  open(): void; close(): void; toggle(): void; revealLauncher(): void;
+  open(): void; close(): void; toggle(): void; setLauncher(visible: boolean): void;
   root: ShadowRoot;
   els: {
     rows: HTMLElement; search: HTMLInputElement; sync: HTMLButtonElement;
@@ -72,15 +72,18 @@ export function mountOverlay(): OverlayHandle {
   const q = (s: string) => root.querySelector(s) as HTMLElement;
 
   let isOpen = false;
-  let loggedIn = false; // launcher stays hidden until an auth token is captured
+  let launcherVisible = false; // controlled by the content script (logged-in + authed route)
   const setOpen = (v: boolean) => {
     isOpen = v;
     q(".backdrop").style.display = v ? "block" : "none";
     q(".overlay").style.display = v ? "flex" : "none";
-    $("fab").style.display = (!v && loggedIn) ? "flex" : "none";
+    $("fab").style.display = (!v && launcherVisible) ? "flex" : "none";
     if (!v) $("menu").classList.remove("show");
   };
-  const revealLauncher = () => { loggedIn = true; if (!isOpen) $("fab").style.display = "flex"; };
+  const setLauncher = (visible: boolean) => {
+    launcherVisible = visible;
+    if (!isOpen) $("fab").style.display = visible ? "flex" : "none";
+  };
 
   const els: OverlayHandle["els"] = {
     rows: $("rows"), search: $("search") as HTMLInputElement, sync: $("sync") as HTMLButtonElement,
@@ -98,5 +101,5 @@ export function mountOverlay(): OverlayHandle {
 
   setOpen(false);
 
-  return { open: () => setOpen(true), close: () => setOpen(false), toggle: () => setOpen(!isOpen), revealLauncher, root, els };
+  return { open: () => setOpen(true), close: () => setOpen(false), toggle: () => setOpen(!isOpen), setLauncher, root, els };
 }

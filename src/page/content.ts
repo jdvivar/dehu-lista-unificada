@@ -38,14 +38,23 @@ const yyyymmdd = (d: Date) => {
 // --- runs at document_start: install the token hook + bridge before the SPA boots ---
 injectHook();
 let overlay: ReturnType<typeof mountOverlay> | null = null;
-let loggedIn = false;
-const getToken = installTokenBridge(() => { loggedIn = true; overlay?.revealLauncher(); });
+let loggedIn = false; // sticky once an auth token is seen this page-load
+
+// Public / login routes never show the launcher, even if a stale token lingers.
+const isPublicRoute = () => /\/(public|login)(\/|$)/.test(location.pathname);
+const refreshLauncher = () => overlay?.setLauncher(loggedIn && !isPublicRoute());
+
+const getToken = installTokenBridge(() => { loggedIn = true; refreshLauncher(); });
 
 // --- the UI + wiring, mounted once the DOM is ready ---
 function start() {
   const ov = mountOverlay();
   overlay = ov;
-  if (loggedIn) ov.revealLauncher(); // token may have arrived before mount
+  refreshLauncher(); // reflect current logged-in + route state (token may have arrived pre-mount)
+  // SPA route changes aren't observable from the isolated world, so poll the URL.
+  let lastHref = location.href;
+  setInterval(() => { if (location.href !== lastHref) { lastHref = location.href; refreshLauncher(); } }, 600);
+  window.addEventListener("popstate", refreshLauncher);
   const els = ov.els;
   const executor = makeExecutor(getToken);
 
