@@ -4,6 +4,10 @@
 
 Extensión de navegador que reúne tus **Notificaciones** y **Comunicaciones** de [DEHú](https://dehu.redsara.es) en **una sola lista buscable**, sin el límite de 30 días del buscador oficial.
 
+![Captura de DEHú Unificado: notificaciones y comunicaciones en una sola lista](assets/screenshot.png)
+
+> Captura con datos de ejemplo.
+
 ## Privacidad
 
 Solo lectura: nunca abre una notificación ni provoca una *comparecencia*; cada fila enlaza a la página oficial. Tus datos se guardan **cifrados en tu equipo** y no salen de él; puedes borrarlos cuando quieras. Herramienta **no oficial**.
