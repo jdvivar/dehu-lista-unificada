@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1-beta.1](https://github.com/jdvivar/dehu-lista-unificada/compare/dehu-unificado-v0.2.0-beta.1...dehu-unificado-v0.2.1-beta.1) (2026-06-30)
+
+
+### Bug Fixes
+
+* drop the GitHub link from the bar (feedback link is enough) ([28a2879](https://github.com/jdvivar/dehu-lista-unificada/commit/28a2879d0297a9c2489bce280f0f4b1067eb23eb))
+
 ## [0.2.0-beta.1](https://github.com/jdvivar/dehu-lista-unificada/compare/dehu-unificado-v0.1.0-beta.1...dehu-unificado-v0.2.0-beta.1) (2026-06-30)
 
 
