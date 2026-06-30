@@ -8,9 +8,11 @@ Extensión de navegador que reúne tus **Notificaciones** y **Comunicaciones** d
 
 Solo lectura: nunca abre una notificación ni provoca una *comparecencia*; cada fila enlaza a la página oficial. Tus datos se guardan **cifrados en tu equipo** y no salen de él; puedes borrarlos cuando quieras. Herramienta **no oficial**.
 
-## Instalación
+## Instalar
 
-Descarga `dehu-unificado.zip` de [Releases](https://github.com/jdvivar/dehu-lista-unificada/releases), descomprímelo y, en la página de extensiones de tu navegador, activa el *Modo de desarrollador* y pulsa *Cargar descomprimida*.
+Próximamente en la **Chrome Web Store** y en **Firefox Add-ons** (aquí irá el enlace al publicarse).
+
+Mientras tanto puedes instalar la beta manualmente (ver [Desarrollo](#desarrollo)).
 
 ## Enviar comentarios
 
@@ -23,9 +25,11 @@ La idea surgió de [este hilo de Jaime Obregón](https://x.com/JaimeObregon/stat
 ## Desarrollo
 
 ```bash
-npm install && npm run build   # carga la raíz del repo como extensión descomprimida
+npm install && npm run build
 npm test
 ```
+
+Carga la raíz del repositorio (o un `dehu-unificado.zip` de [Releases](https://github.com/jdvivar/dehu-lista-unificada/releases)) como extensión descomprimida: página de extensiones → *Modo de desarrollador* → *Cargar descomprimida*.
 
 ## Licencia
 
