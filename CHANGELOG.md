@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0-beta.1](https://github.com/jdvivar/dehu-lista-unificada/compare/dehu-unificado-v0.2.1-beta.1...dehu-unificado-v0.3.0-beta.1) (2026-06-30)
+
+
+### Features
+
+* hexagon brand icon for the extension ([afe1935](https://github.com/jdvivar/dehu-lista-unificada/commit/afe1935d9be246ecabd036944a7babac642f382e))
+
 ## [0.2.1-beta.1](https://github.com/jdvivar/dehu-lista-unificada/compare/dehu-unificado-v0.2.0-beta.1...dehu-unificado-v0.2.1-beta.1) (2026-06-30)
 
 
