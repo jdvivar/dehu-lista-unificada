@@ -40,7 +40,12 @@ Cuanto más concreto seas (qué navegador usas, qué pasos diste), más fácil n
 
 ## Origen de la idea
 
-Este proyecto nació a partir de un tuit de **Jaime Obregón**: <https://x.com/JaimeObregon/status/2071517569790402776>, que señalaba lo mejorable que es la experiencia de uso de DEHú al consultar notificaciones y comunicaciones. Esta extensión es un intento de aliviar esas fricciones para cualquier persona, sin conocimientos técnicos.
+La idea surgió de un [hilo de **Jaime Obregón** en X](https://x.com/JaimeObregon/status/2071517569790402776) que describía con precisión dos problemas de la DEHú:
+
+- Los mensajes aparecen separados en **dos buzones** —Notificaciones y Comunicaciones—, sin una vista unificada, obligando a revisar ambos cada vez.
+- El buscador **da error con rangos de más de 30 días**: no puedes pedir «todos los mensajes desde 2023», y ni siquiera ver completo un mes de 31 días (enero, marzo, mayo, julio, agosto, octubre, diciembre), porque no muestra más de 30.
+
+Jaime subrayaba que esto afecta sobre todo a los millones de autónomos y pymes que usan la DEHú. Esta extensión es un intento de aliviar exactamente esas dos fricciones para cualquier persona, sin conocimientos técnicos.
 
 ## Desarrollo
 
