@@ -20,8 +20,7 @@ export const CSS = `
 .ext-bar .iconbtn { cursor: pointer; font-size: 17px; line-height: 1; opacity: .92; background: rgba(255,255,255,.12);
   width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
 .ext-bar .iconbtn:hover { background: rgba(255,255,255,.22); }
-.ext-bar .ghlink { margin-left: auto; color: #fff; opacity: .9; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; }
-.ext-bar .ghlink:hover { opacity: 1; text-decoration: underline; }
+.ext-bar .gear { margin-left: auto; }
 .ext-bar .x { font-size: 20px; }
 
 .menu { position: absolute; top: 50px; right: 14px; width: 300px; background: #fff; color: #1c2533;

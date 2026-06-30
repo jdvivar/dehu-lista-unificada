@@ -14,7 +14,6 @@ export function overlayHTML(): string {
     <span class="title">DEHú Unificado</span>
     <span class="tag">BETA · solo lectura</span>
     <span class="sub">Notificaciones + Comunicaciones en una sola lista</span>
-    <a class="ghlink" href="${REPO_URL}" target="_blank" rel="noopener" title="Código y novedades en GitHub">GitHub ↗</a>
     <span class="iconbtn gear" id="gear" title="Ajustes">⚙</span>
     <span class="iconbtn x">✕</span>
     <div class="menu" id="menu">
