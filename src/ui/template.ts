@@ -1,13 +1,20 @@
 // The overlay's inner markup (everything inside .overlay). The .backdrop, .overlay
 // wrapper and the .fab launcher are created in overlay.ts. Stable ids are wired by
 // the content script.
+export const REPO_URL = "https://github.com/jdvivar/dehu-lista-unificada";
+// Pre-filled "new issue" so non-technical users only have to fill in the blanks.
+export const FEEDBACK_URL = `${REPO_URL}/issues/new?title=${encodeURIComponent("Comentario sobre DEHú Unificado")}&body=${encodeURIComponent(
+  "Cuéntanos qué ha pasado o qué te gustaría mejorar:\n\n- ¿Qué estabas haciendo?\n- ¿Qué esperabas que ocurriera?\n- ¿Qué ocurrió en realidad?\n\n(Opcional) Navegador y sistema operativo:",
+)}`;
+
 export function overlayHTML(): string {
   return `
   <div class="ext-bar">
     <span class="hex">⬡</span>
     <span class="title">DEHú Unificado</span>
-    <span class="tag">EXTENSIÓN · solo lectura</span>
+    <span class="tag">BETA · solo lectura</span>
     <span class="sub">Notificaciones + Comunicaciones en una sola lista</span>
+    <a class="ghlink" href="${REPO_URL}" target="_blank" rel="noopener" title="Código y novedades en GitHub">GitHub ↗</a>
     <span class="iconbtn gear" id="gear" title="Ajustes">⚙</span>
     <span class="iconbtn x">✕</span>
     <div class="menu" id="menu">
@@ -66,5 +73,6 @@ export function overlayHTML(): string {
   <div class="ext-foot">
     <span class="lock">🔒 Datos cifrados con tu identidad de DEHú</span>
     <span id="lastsync"></span>
+    <a class="feedback" href="${FEEDBACK_URL}" target="_blank" rel="noopener">💬 Enviar comentario</a>
   </div>`;
 }

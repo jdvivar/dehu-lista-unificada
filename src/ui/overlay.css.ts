@@ -20,7 +20,8 @@ export const CSS = `
 .ext-bar .iconbtn { cursor: pointer; font-size: 17px; line-height: 1; opacity: .92; background: rgba(255,255,255,.12);
   width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
 .ext-bar .iconbtn:hover { background: rgba(255,255,255,.22); }
-.ext-bar .gear { margin-left: auto; }
+.ext-bar .ghlink { margin-left: auto; color: #fff; opacity: .9; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.ext-bar .ghlink:hover { opacity: 1; text-decoration: underline; }
 .ext-bar .x { font-size: 20px; }
 
 .menu { position: absolute; top: 50px; right: 14px; width: 300px; background: #fff; color: #1c2533;
@@ -83,6 +84,8 @@ tbody tr:hover .open { opacity: 1; }
 
 .ext-foot { background: #fff; border-top: 1px solid #e3e8ef; padding: 9px 18px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #64748b; }
 .ext-foot .lock { color: #15803d; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+.ext-foot .feedback { margin-left: auto; color: #6d28d9; font-weight: 600; text-decoration: none; }
+.ext-foot .feedback:hover { text-decoration: underline; }
 
 .fab { position: fixed; right: 26px; bottom: 26px; z-index: 2147483639; background: #6d28d9; color: #fff; border: 0;
   border-radius: 99px; padding: 13px 18px; font-weight: 700; font-size: 14px; box-shadow: 0 10px 26px rgba(109,40,217,.45);

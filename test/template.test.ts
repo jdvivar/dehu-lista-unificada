@@ -9,5 +9,9 @@ describe("overlayHTML", () => {
                       'id="gear"', 'id="menu"', 'id="progress"'])
       expect(h).toContain(id);
     expect(h).toContain("solo lectura");   // safety copy present
+    expect(h).toContain("BETA");           // beta label (not "EXTENSIÓN")
+    expect(h).not.toContain("EXTENSIÓN");
+    expect(h).toContain("github.com/jdvivar/dehu-lista-unificada"); // GitHub + feedback links
+    expect(h).toContain("Enviar comentario");
   });
 });
