@@ -3,6 +3,7 @@ import { makeExecutor } from "./executor";
 import { makeStore } from "./storage";
 import { mountOverlay } from "../ui/overlay";
 import { runScan } from "../core/engine";
+import { computeFetchRanges } from "../core/incremental";
 import { mergeDedupeSort } from "../core/normalize";
 import { filterItems, renderRows } from "../ui/render";
 import { downloadCSV } from "../ui/csv";
@@ -52,6 +53,8 @@ function start() {
   let store: Awaited<ReturnType<typeof makeStore>> | null = null;
   let storageOn = true;
   let abort: AbortController | null = null;
+  let coveredFrom: string | null = null; // oldest date scanned (YYYY-MM-DD)
+  let coveredTo: string | null = null;   // newest date scanned (YYYY-MM-DD)
 
   const today = new Date();
   const yearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
@@ -94,20 +97,34 @@ function start() {
     els.sync.disabled = true;
     els.progressbar.hidden = false;
     els.barfill.style.width = "0";
+    const from = new Date(els.from.value), to = new Date(els.to.value);
+    const before = all.length;
     try {
-      const fresh = await runScan({
-        from: new Date(els.from.value), to: new Date(els.to.value),
-        sources: sourcesSelected(), executor, signal: abort.signal,
-        onReauth: async () => { /* SPA auto-refreshes; getToken() returns the latest */ },
-        onProgress: p => {
-          els.progress.textContent = `Escaneando ventana ${p.windowIndex} de ${p.windowCount} · ${p.itemCount} elementos`;
-          els.barfill.style.width = `${Math.round((p.windowIndex / p.windowCount) * 100)}%`;
-        },
-      });
-      all = mergeDedupeSort([...all, ...fresh]); // additive: keep previously cached items
+      // Only fetch what isn't already cached: the recent doubt window + any backfill.
+      const ranges = computeFetchRanges(from, to,
+        coveredFrom ? new Date(coveredFrom) : null, coveredTo ? new Date(coveredTo) : null, 30);
+      let fresh: UnifiedItem[] = [];
+      for (let i = 0; i < ranges.length; i++) {
+        const r = ranges[i];
+        const part = await runScan({
+          from: r.from, to: r.to, sources: sourcesSelected(), executor, maxDays: 30, signal: abort.signal,
+          onReauth: async () => { /* SPA auto-refreshes; getToken() returns the latest */ },
+          onProgress: p => {
+            els.progress.textContent = `Escaneando ${i + 1}/${ranges.length} · ventana ${p.windowIndex}/${p.windowCount} · ${fresh.length + p.itemCount} encontrados`;
+            els.barfill.style.width = `${Math.round((p.windowIndex / p.windowCount) * 100)}%`;
+          },
+        });
+        fresh = fresh.concat(part);
+      }
+      all = mergeDedupeSort([...all, ...fresh]);
+      // widen the covered range to include what we just scanned
+      coveredFrom = yyyymmdd(coveredFrom ? new Date(Math.min(new Date(coveredFrom).getTime(), from.getTime())) : from);
+      coveredTo = yyyymmdd(coveredTo ? new Date(Math.max(new Date(coveredTo).getTime(), to.getTime())) : to);
       apply();
-      if (storageOn && store) await store.save(all, yyyymmdd(new Date()));
-      els.progress.textContent = `Listo · ${all.length} elementos`;
+      const lastSync = yyyymmdd(new Date());
+      if (storageOn && store) await store.save(all, { lastSync, coveredFrom, coveredTo });
+      els.lastsync.textContent = `· Última sincronización: ${lastSync} · solo se descargan novedades`;
+      els.progress.textContent = `Listo · ${all.length} elementos (${all.length - before} nuevos)`;
     } catch (e) {
       els.progress.textContent = (e as Error).message?.match(/abort/i) ? "Cancelado." : "Error durante la sincronización.";
     } finally {
@@ -134,7 +151,11 @@ function start() {
     store = await makeStore(id, chrome.storage.local);
     const cached = await store.load();
     if (cached.items.length) all = mergeDedupeSort([...all, ...cached.items]);
-    if (cached.lastSync) els.lastsync.textContent = `· Última sincronización: ${cached.lastSync} · solo se descargan novedades`;
+    if (cached.meta) {
+      coveredFrom = cached.meta.coveredFrom;
+      coveredTo = cached.meta.coveredTo;
+      els.lastsync.textContent = `· Última sincronización: ${cached.meta.lastSync} · solo se descargan novedades`;
+    }
     apply();
   };
   identityHandler = (id) => { if (identityResolved) return; identityResolved = true; void setupStore(id); };

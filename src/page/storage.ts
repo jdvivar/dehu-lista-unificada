@@ -1,6 +1,12 @@
 import type { UnifiedItem } from "../types";
 import { deriveKey, randomSalt, encryptJSON, decryptJSON } from "../core/crypto";
 
+export interface StoreMeta {
+  lastSync: string;      // YYYY-MM-DD of the last successful sync
+  coveredFrom: string;   // oldest date scanned (YYYY-MM-DD)
+  coveredTo: string;     // newest date scanned (YYYY-MM-DD)
+}
+
 async function nsHash(identity: string): Promise<string> {
   const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(identity));
   return [...new Uint8Array(h)].slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
@@ -8,7 +14,7 @@ async function nsHash(identity: string): Promise<string> {
 
 export async function makeStore(identity: string, area: chrome.storage.StorageArea) {
   const ns = await nsHash(identity);
-  const kBlob = `dehu:${ns}:blob`, kSalt = `dehu:${ns}:salt`, kSync = `dehu:${ns}:sync`;
+  const kBlob = `dehu:${ns}:blob`, kSalt = `dehu:${ns}:salt`, kMeta = `dehu:${ns}:meta`;
 
   async function getKey(): Promise<CryptoKey> {
     const got = await area.get([kSalt]);
@@ -19,18 +25,19 @@ export async function makeStore(identity: string, area: chrome.storage.StorageAr
   }
 
   return {
-    async load(): Promise<{ items: UnifiedItem[]; lastSync: string | null }> {
-      const got = await area.get([kBlob, kSync]);
-      if (!got[kBlob]) return { items: [], lastSync: got[kSync] ?? null };
+    async load(): Promise<{ items: UnifiedItem[]; meta: StoreMeta | null }> {
+      const got = await area.get([kBlob, kMeta]);
+      const meta = (got[kMeta] as StoreMeta) ?? null;
+      if (!got[kBlob]) return { items: [], meta };
       try {
         const items = await decryptJSON<UnifiedItem[]>(await getKey(), got[kBlob]);
-        return { items, lastSync: got[kSync] ?? null };
-      } catch { return { items: [], lastSync: null }; }
+        return { items, meta };
+      } catch { return { items: [], meta: null }; }
     },
-    async save(items: UnifiedItem[], lastSync: string): Promise<void> {
+    async save(items: UnifiedItem[], meta: StoreMeta): Promise<void> {
       const blob = await encryptJSON(await getKey(), items);
-      await area.set({ [kBlob]: blob, [kSync]: lastSync });
+      await area.set({ [kBlob]: blob, [kMeta]: meta });
     },
-    async clear(): Promise<void> { await area.remove([kBlob, kSalt, kSync]); },
+    async clear(): Promise<void> { await area.remove([kBlob, kSalt, kMeta]); },
   };
 }
