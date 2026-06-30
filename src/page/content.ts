@@ -72,9 +72,13 @@ function start() {
   const activeState = () =>
     (ov.root.querySelector(".chip.on") as HTMLElement | null)?.dataset.state ?? "all";
 
+  // DEHú UI language segment from the live URL (/es/…, /ca/…, etc.); default es.
+  const seg = location.pathname.split("/")[1];
+  const lang = /^[a-z]{2}$/.test(seg) ? seg : "es";
+
   const apply = () => {
     const shown = filterItems(all, { query: els.search.value, sources: sourcesSelected(), state: activeState() });
-    renderRows(els.rows, shown);
+    renderRows(els.rows, shown, lang);
     els.count.textContent = all.length
       ? `Mostrando ${shown.length} de ${all.length} elementos`
       : "Sin datos todavía. Inicia sesión y pulsa Sincronizar.";

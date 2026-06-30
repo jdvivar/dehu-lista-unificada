@@ -14,14 +14,22 @@ const fmt = (iso: string) => { const d = new Date(iso);
   return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`; };
 const esc = (s: string) => s.replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[c]!));
 
-const BASE = "https://dehu.redsara.es/es";
-// Type-aware link to the right DEHú tab. A true per-item deep link is added once
-// we confirm DEHú exposes a per-item route (see deepLink()).
-export function deepLink(i: UnifiedItem): string {
-  return i.source === "notificacion" ? `${BASE}/notifications` : `${BASE}/communications`;
+const HOST = "https://dehu.redsara.es";
+// Per-item deep link, keyed on the 45-char sentReference. `lang` is the DEHú UI
+// language segment (es/ca/gl/eu/va/en…), derived from the live page — never hardcoded:
+//   notification  -> /{lang}/notifications/realized/{ref}
+//   communication -> /{lang}/communication-detail/{ref}
+// Falls back to the tab if sentReference is somehow absent.
+export function deepLink(i: UnifiedItem, lang: string): string {
+  const base = `${HOST}/${lang}`;
+  const ref = (i.raw as { sentReference?: string } | null)?.sentReference;
+  if (i.source === "notificacion") {
+    return ref ? `${base}/notifications/realized/${encodeURIComponent(ref)}` : `${base}/notifications`;
+  }
+  return ref ? `${base}/communication-detail/${encodeURIComponent(ref)}` : `${base}/communications`;
 }
 
-export function rowHTML(i: UnifiedItem): string {
+export function rowHTML(i: UnifiedItem, lang: string): string {
   const badge = i.source === "notificacion" ? "n" : "c";
   const label = i.source === "notificacion" ? "● Notificación" : "● Comunicación";
   return `<tr><td class="date">${fmt(i.date)}</td>
@@ -30,9 +38,9 @@ export function rowHTML(i: UnifiedItem): string {
     <td><span class="state">${esc(i.state)}</span></td>
     <td class="date">${i.expirationDate ? fmt(i.expirationDate) : "—"}</td>
     <td>${i.hasAnnexes ? "📎" : ""}</td>
-    <td><a class="open" href="${deepLink(i)}" target="_blank" rel="noopener">Abrir en DEHú ↗</a></td></tr>`;
+    <td><a class="open" href="${deepLink(i, lang)}" target="_blank" rel="noopener">Abrir en DEHú ↗</a></td></tr>`;
 }
 
-export function renderRows(tbody: HTMLElement, items: UnifiedItem[]): void {
-  tbody.innerHTML = items.map(rowHTML).join("");
+export function renderRows(tbody: HTMLElement, items: UnifiedItem[], lang: string): void {
+  tbody.innerHTML = items.map(i => rowHTML(i, lang)).join("");
 }
