@@ -14,6 +14,13 @@ const fmt = (iso: string) => { const d = new Date(iso);
   return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`; };
 const esc = (s: string) => s.replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[c]!));
 
+const BASE = "https://dehu.redsara.es/es";
+// Type-aware link to the right DEHú tab. A true per-item deep link is added once
+// we confirm DEHú exposes a per-item route (see deepLink()).
+export function deepLink(i: UnifiedItem): string {
+  return i.source === "notificacion" ? `${BASE}/notifications` : `${BASE}/communications`;
+}
+
 export function rowHTML(i: UnifiedItem): string {
   const badge = i.source === "notificacion" ? "n" : "c";
   const label = i.source === "notificacion" ? "● Notificación" : "● Comunicación";
@@ -23,7 +30,7 @@ export function rowHTML(i: UnifiedItem): string {
     <td><span class="state">${esc(i.state)}</span></td>
     <td class="date">${i.expirationDate ? fmt(i.expirationDate) : "—"}</td>
     <td>${i.hasAnnexes ? "📎" : ""}</td>
-    <td><a class="open" href="https://dehu.redsara.es/es/notifications" target="_blank" rel="noopener">Abrir en DEHú ↗</a></td></tr>`;
+    <td><a class="open" href="${deepLink(i)}" target="_blank" rel="noopener">Abrir en DEHú ↗</a></td></tr>`;
 }
 
 export function renderRows(tbody: HTMLElement, items: UnifiedItem[]): void {
