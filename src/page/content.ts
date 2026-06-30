@@ -15,21 +15,6 @@ function injectHook() {
   (document.head || document.documentElement).appendChild(s);
 }
 
-// Best-effort: the SPA's user endpoint exposes the stable identity (NIF). The exact
-// path (/api/v1/user/{id}) is confirmed during manual verification; if this fails,
-// identity stays null and persistence is simply disabled for the session.
-async function fetchIdentity(getToken: () => string | null): Promise<string | null> {
-  try {
-    const res = await fetch("https://dehu.redsara.es/api/v1/user", {
-      credentials: "include",
-      headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {},
-    });
-    if (!res.ok) return null;
-    const j = await res.json();
-    return j?.person?.identifier ?? null;
-  } catch { return null; }
-}
-
 const yyyymmdd = (d: Date) => {
   const p = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
@@ -44,7 +29,12 @@ let loggedIn = false; // sticky once an auth token is seen this page-load
 const isPublicRoute = () => /\/(public|login)(\/|$)/.test(location.pathname);
 const refreshLauncher = () => overlay?.setLauncher(loggedIn && !isPublicRoute());
 
-const getToken = installTokenBridge(() => { loggedIn = true; refreshLauncher(); });
+let capturedUserId: string | null = null;
+let identityHandler: ((id: string) => void) | null = null;
+const getToken = installTokenBridge(
+  () => { loggedIn = true; refreshLauncher(); },
+  (id) => { capturedUserId = id; identityHandler?.(id); },
+);
 
 // --- the UI + wiring, mounted once the DOM is ready ---
 function start() {
@@ -138,17 +128,18 @@ function start() {
   const clearClose = ov.root.querySelector("#opt-clear-close") as HTMLInputElement | null;
   window.addEventListener("beforeunload", () => { if (clearClose?.checked && store) void store.clear(); });
 
-  // load cached data (only meaningful once logged in / identity known)
-  void (async () => {
-    const identity = await fetchIdentity(getToken);
-    if (identity) {
-      store = await makeStore(identity, chrome.storage.local);
-      const cached = await store.load();
-      all = cached.items;
-      if (cached.lastSync) els.lastsync.textContent = `· Última sincronización: ${cached.lastSync} · solo se descargan novedades`;
-    }
+  // set up encrypted local storage once the user id is captured from the SPA's request
+  let identityResolved = false;
+  const setupStore = async (id: string) => {
+    store = await makeStore(id, chrome.storage.local);
+    const cached = await store.load();
+    if (cached.items.length) all = mergeDedupeSort([...all, ...cached.items]);
+    if (cached.lastSync) els.lastsync.textContent = `· Última sincronización: ${cached.lastSync} · solo se descargan novedades`;
     apply();
-  })();
+  };
+  identityHandler = (id) => { if (identityResolved) return; identityResolved = true; void setupStore(id); };
+  if (capturedUserId) identityHandler(capturedUserId);
+  apply();
 
   chrome.runtime.onMessage.addListener(msg => { if (msg?.type === "toggle-overlay") ov.toggle(); });
 }
