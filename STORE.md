@@ -44,6 +44,9 @@ equipo y no se envían a ningún sitio. Herramienta no oficial.
 ## Recursos de la ficha
 
 - Icono: `icons/128.png`
-- Captura: `assets/screenshot.png`
+- Captura para la tienda (1280×800): `assets/store-1280x800.png`
+- Banner del README: `assets/screenshot.png`
 - Categoría sugerida: Productividad
 - Idioma principal: Español (es)
+
+Regenerar la captura de tienda: `node scripts/gen-screenshot.mjs`, capturar con Playwright a 1280×800 (2×) y reducir con `sips -z 800 1280`.
