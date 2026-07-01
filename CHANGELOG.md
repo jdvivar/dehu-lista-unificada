@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1-beta.1](https://github.com/jdvivar/dehu-lista-unificada/compare/dehu-unificado-v0.3.0-beta.1...dehu-unificado-v0.3.1-beta.1) (2026-07-01)
+
+
+### Bug Fixes
+
+* drop unused scripting permission ([558d4df](https://github.com/jdvivar/dehu-lista-unificada/commit/558d4dfc18e28d6f7f60074ed80c4a2b3c03185b))
+
 ## [0.3.0-beta.1](https://github.com/jdvivar/dehu-lista-unificada/compare/dehu-unificado-v0.2.1-beta.1...dehu-unificado-v0.3.0-beta.1) (2026-06-30)
 
 
