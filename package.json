@@ -8,7 +8,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "build": "node build.mjs",
-    "package": "npm run build && zip -r dehu-unificado.zip manifest.json dist icons LICENSE README.md",
+    "package": "node scripts/package.mjs",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

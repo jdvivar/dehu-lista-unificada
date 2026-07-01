@@ -33,7 +33,7 @@ npm install && npm run build
 npm test
 ```
 
-Carga la raíz del repositorio (o un `dehu-unificado.zip` de [Releases](https://github.com/jdvivar/dehu-lista-unificada/releases)) como extensión descomprimida: página de extensiones → *Modo de desarrollador* → *Cargar descomprimida*.
+Carga la raíz del repositorio (o el zip de la última [release](https://github.com/jdvivar/dehu-lista-unificada/releases)) como extensión descomprimida: página de extensiones → *Modo de desarrollador* → *Cargar descomprimida*.
 
 ## Licencia
 
