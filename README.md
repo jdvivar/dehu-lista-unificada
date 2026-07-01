@@ -10,7 +10,7 @@ Extensión de navegador que reúne tus **Notificaciones** y **Comunicaciones** d
 
 ## Privacidad
 
-Solo lectura: nunca abre una notificación ni provoca una *comparecencia*; cada fila enlaza a la página oficial. Tus datos se guardan **cifrados en tu equipo** y no salen de él; puedes borrarlos cuando quieras. Herramienta **no oficial**.
+Solo lectura: nunca abre una notificación ni provoca una *comparecencia*; cada fila enlaza a la página oficial. Tus datos se guardan **cifrados en tu equipo** y no salen de él; puedes borrarlos cuando quieras. Herramienta **no oficial**. Detalles en la [política de privacidad](./PRIVACY.md).
 
 ## Instalar
 
