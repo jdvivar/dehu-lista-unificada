@@ -27,8 +27,10 @@ equipo y no se envían a ningún sitio. Herramienta no oficial.
   Puede acumular varios años de historial, de ahí `unlimitedStorage`.
 - **`activeTab`** — Al pulsar el icono, comprobar si la pestaña activa es DEHú para abrir el
   panel; si no lo es, abrir DEHú.
-- **Permiso de host `https://dehu.redsara.es/*`** — La extensión solo funciona en DEHú:
-  inyecta el panel y reutiliza la sesión del usuario para leer sus propios listados.
+- **Acceso al sitio (`content_scripts` en `https://dehu.redsara.es/*`)** — La extensión solo
+  funciona en DEHú: se inyecta únicamente en sus páginas y reutiliza la sesión del usuario para
+  leer sus propios listados. No usa `host_permissions`; las peticiones a la API son del mismo
+  origen (dehu.redsara.es).
 - **`web_accessible_resources` → `dist/token-hook.js`** — Script que se inyecta en la página
   de DEHú para capturar el token de la propia sesión del usuario (necesario para leer sus
   listados). Va **incluido en el paquete**; no se descarga ni ejecuta código remoto.
