@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2-beta.1](https://github.com/jdvivar/dehu-lista-unificada/compare/dehu-unificado-v0.3.1-beta.1...dehu-unificado-v0.3.2-beta.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* remove unused host_permissions (same-origin fetch works without it) ([967f664](https://github.com/jdvivar/dehu-lista-unificada/commit/967f664dfb79a1a8b9cb3113f7faa4d0e5fae90c))
+
 ## [0.3.1-beta.1](https://github.com/jdvivar/dehu-lista-unificada/compare/dehu-unificado-v0.3.0-beta.1...dehu-unificado-v0.3.1-beta.1) (2026-07-01)
 
 
