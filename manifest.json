@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "DEHú Unificado",
-  "version": "0.1.0",
+  "version": "0.3.2",
+  "version_name": "0.3.2-beta.1",
   "description": "Notificaciones y Comunicaciones de DEHú en una sola lista buscable.",
   "permissions": ["storage", "unlimitedStorage", "activeTab"],
   "background": { "service_worker": "dist/service-worker.js" },
