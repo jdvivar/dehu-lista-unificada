@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "description": "Notificaciones y Comunicaciones de DEHú en una sola lista buscable.",
   "permissions": ["storage", "unlimitedStorage", "activeTab"],
-  "host_permissions": ["https://dehu.redsara.es/*"],
   "background": { "service_worker": "dist/service-worker.js" },
   "action": { "default_title": "Abrir DEHú Unificado" },
   "content_scripts": [
